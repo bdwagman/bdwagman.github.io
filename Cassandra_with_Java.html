@@ -1,0 +1,620 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="bw.css">
+    <title>Cassandra_with_Java</title>
+  </head>
+  <body vlink="#FF0000" text="#000000" link="#0000FF" alink="#000088" bgcolor="#FFFFFF">
+    <div id="content"> <span class="left"><small>2016-07-05</small></span>
+      <span class="right"><small>Copyright ©&nbsp;2016 <a href="Barnet_Wagman_resume.html">Barnet
+            Wagman</a></small></span> <br>
+      <hr size="1" color="#9d1d1e"> <br>
+      <h1 align="center">Cassandra with Java: A Minimal Guide</h1>
+      <p>As briefly as possible, this page describes how to create and access a
+        Cassandra database using Java.&nbsp; For anything else - Cassandra
+        architecture, configuration, optimization, maintenance - you'll need to
+        look elsewhere.&nbsp;&nbsp; The <a href="http://wiki.apache.org/cassandra/FrontPage">Cassandra
+          Wiki</a> is good place to start.<br>
+        <br>
+      </p>
+      <hr width="50%" size="1" align="left">
+      <ol>
+      </ol>
+      <a href="#a1">1. The Logical Organization of Data</a><br>
+      <a href="#a2">2. Installing Cassandra</a><br>
+      <a href="#a3">3. Getting a Java Driver</a><br>
+      <a href="#a4">4. Launching Cassandra (and optionally cqlsh)</a><br>
+      <a href="#a5">5. Connecting to Cassandra</a><br>
+      <a href="#a6">6. Creating a keyspace</a><br>
+      <a href="#a7">7. Creating a table</a><br>
+      <a href="#a8">8. Adding data</a><br>
+      <a href="#a9">9. Retrieving data</a><br>
+      <a href="#a10">10. Everything else</a><br>
+      <ol>
+      </ol>
+      <hr width="50%" size="1" align="left"><br>
+      <h3>1. <a name="a1">The Logical Organization of Data</a><br>
+      </h3>
+      <p>For a highly distributed system, Cassandra has a relatively simple
+        architecture (see, for example, <a href="http://www.planetcassandra.org/blog/node-of-the-rings-fellowship-of-the-clusters-or-understanding-how-cassandra-stores-data/">Node
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          of the Rings</a>).&nbsp; However, when it comes to explaining how data
+        is arranged with respect to programmatic access, the descriptions we've
+        seen are a bit opaque. The problem arises because the logical
+        organization of data and it's physical storage are <i>not</i>
+        independent of each other.&nbsp; <br>
+      </p>
+      <p>Logically, Cassandra stores data in <i><b>rows</b></i> of a <i><b>table</b></i>.&nbsp;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        Each table has a defined set of columns and each column has a name and a
+        data type.&nbsp; Columns can be added to existing tables.&nbsp;&nbsp;
+        Except for the ability to add columns, this is no different than a
+        standard sql table, but retrieving rows is <i>very</i> different.<br>
+      </p>
+      <p>Each row is uniquely identified by a <b><i>primary key</i>, </b>which
+        is built from specified columns in the table.&nbsp; The primary key (and
+        its components) is the main basis for retrieving rows.&nbsp; Retrieval
+        is also possible based on the values of a <i><b>secondary index </b></i>and
+        a secondary index may be created on any column.&nbsp; But most of the
+        action is via the primary key.<br>
+      </p>
+      <p>The primary key consists of one or more columns.&nbsp; One of these
+        columns is the <i><b>partition key</b><big>.&nbsp; </big></i>Records
+        with the same partition key value are stored in physical proximity, on
+        the same <i><b>node</b></i> (we'll get to nodes shortly).&nbsp; The
+        other columns in the primary key are <i><b>clustering columns</b>.&nbsp;
+          </i>Together, they define the order in which rows with the same
+        partition key value are stored.&nbsp; These components of the partition
+        key are used in specific ways for retrieving rows; their use is subject
+        to some limitations.<br>
+      </p>
+      <ul>
+        <li>The primary key uniquely identifies a row.&nbsp; Using the entire
+          primary key (i.e. specifying values for all its components) is an
+          efficient way to retrieve a single specific row.</li>
+        <li>Using the partition key is an efficient way to retrieve all the row
+          with the same partition key value.&nbsp; However, the partition key
+          can be used to select by equality only; inequality tests on the
+          partition key are <i>not</i> allowed.</li>
+        <li>The clustering columns can be used to efficiently retrieve a range
+          of rows with the same partition key.&nbsp;&nbsp; Equality and
+          inequality test are supported, but there are limitations.&nbsp; When
+          physically stored, rows are ordered by the combined clustering
+          columns.&nbsp; I.e. the clustering column values are concatenated into
+          a single sorting key.&nbsp; When retrieving rows using these keys,
+          only tests that are consistent with this sorting key are allowed&nbsp;
+          E.g. suppose the clustering columns were c0, c1, c2, c3, with c0 as
+          the partition key.&nbsp; It would be legal to select</li>
+      </ul>
+      <blockquote>
+        <blockquote>
+          <blockquote>c0 = 20 and c1 = 21 and c2 = 22<br>
+          </blockquote>
+          or<br>
+          <blockquote>c0 = 20 and c1 = 21 and c2 = 22 and c3 = 23<br>
+          </blockquote>
+          but <br>
+          <blockquote>c0 = 20 and c1 = 21 and c3 = 23<br>
+          </blockquote>
+          would be illegal.<br>
+          <br>
+          When retrieving rows using several of the primary key components, only
+          the last cluster column used can be an inequality.&nbsp; I.e. <br>
+          <blockquote>c0 = 20 and c1 &gt; 10 // legal<br>
+            c0 = 20 and c1 = 10 and c2 &lt; 100 // legal<br>
+            c0 = 20 and c1 &lt; 10 and c2 &lt; 100 // ILLEGAL<br>
+          </blockquote>
+        </blockquote>
+        <ul>
+          <li>Using an indexed column is efficient if there are many rows with
+            the same index column value.&nbsp; Limitation: in a select statement
+            that involves an indexed column, there must be at least one equality
+            test.&nbsp; Using inequality tests only is illegal.&nbsp; (I.e.
+            indexes are accessed with something like a hashtable, not like a
+            btree.)</li>
+        </ul>
+      </blockquote>
+      <blockquote>Rows are stored in <i><b>nodes</b>.&nbsp; </i>A node is a
+        physical repository for rows.&nbsp; It is possible to have one node per
+        physical machine, but it is also possible to have multiple nodes on a
+        single machine.&nbsp; Rows are assigned to nodes based on their
+        partition key value.&nbsp; Rows with the same partition key value go on
+        to the same node.&nbsp; Note that a table is typically distributed
+        across multiple nodes and that a node usually contains records from more
+        than one table.&nbsp; <br>
+        <br>
+        Nodes are also part of the replication scheme.&nbsp; Based on a
+        replication factor, a row can be stored on more than one node.&nbsp;
+        E.g. if the replication factor is set to 3, each row will be stored on
+        three nodes (i.e. there will be three copies of the row).<br>
+      </blockquote>
+      <blockquote>Nodes exist in <i><b>data centers</b></i>, which may be
+        specific physical systems ("virtual data centers" are also
+        possible).&nbsp; Nodes are, ideally, assigned to data centers based on
+        workload considerations.<br>
+        <br>
+        A collection of data centers that contain related nodes constitute a <i><b>cluster</b></i>,
+        which is the outmost container in a Cassandra system.&nbsp;
+        Conceptually, a cluster is similar to a sql database - it is intended to
+        contain a set of related tables.&nbsp; For each cluster, there is
+        typically one <i><b>keyspace</b></i>, which is the name space.&nbsp;
+        Replication is specified per keyspace.&nbsp; Note that while there is <i>usually</i>
+        one keyspace per cluster, there can be multiple keyspaces in a
+        cluster.&nbsp; (Some documentation describes the keyspace as the outmost
+        container, rather than the cluster.&nbsp; However, since a cluster can
+        contain multiple keyspaces, that characterization is suspect.)<br>
+        <br>
+        The hierarchy of data structures is (top down):<br>
+        <ul style="list-style-type:circle">
+          <li>cluster</li>
+          <ul style="list-style-type:circle">
+            <li>keyspace</li>
+            <ul style="list-style-type:circle">
+              <li>node</li>
+              <ul style="list-style-type:circle">
+                <li>table (defined as a set of columns)</li>
+                <ul style="list-style-type:circle">
+                  <li>row<br>
+                  </li>
+                </ul>
+              </ul>
+            </ul>
+          </ul>
+        </ul>
+      </blockquote>
+      <p> </p>
+      <h3>2. <a name="a2"></a>Installing Cassandra</h3>
+      <p>Cassandra is written in Java, so you'll need to have a jvm
+        installed.&nbsp;&nbsp; The current version of Cassandra, 3.8.*, requires
+        Java 8.&nbsp; The Apache <a href="https://wiki.apache.org/cassandra/GettingStarted">Cassandra
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          Wiki</a> recommends using the Oracle/Sun jvm.&nbsp; To check your
+        version of Java (and to make sure it's accessible), run <tt>java
+          -version</tt> in a shell.<br>
+      </p>
+      <p>Cassandra packages are available for many systems (including most linux
+        distributions).&nbsp; However, I've found it simplest to use the Apache
+        tar file.&nbsp; Download apache-cassandra-3.7-bin.tar.gz from&nbsp;<a href="http://cassandra.apache.org/download/">cassandra
+          apache</a> and unpack it wherever you want it (with <tt>tar -xzvf
+          cassandra.apache</tt>).&nbsp; The file unpacks into a directory named<tt>
+          a</tt><tt>pache-cassandra-3.5</tt>.&nbsp; Excecutables are in <tt>a</tt><tt>pache-cassandra-3.5/bin.
+          </tt>When you create tables, they will be stored in <tt>a</tt><tt>pache-cassandra-3.5/data.<br>
+        </tt></p>
+      <p>For a simple test system, no configuration is required.&nbsp; The
+        default installation creates a single node system, which is sufficient
+        for our needs here.<br>
+      </p>
+      <h3>3. <a name="a3"></a>Getting a Java Driver</h3>
+      <p>Although Cassandra is written in Java, it does not have a native Java
+        api and Apache Cassandra does not include a jdbc or any other means to
+        access Cassandra from a Java program.&nbsp; As of this writing, the
+        primarily mechanism for accessing a Cassandra database is the query
+        language <a href="http://docs.datastax.com/en/cql/3.1/cql/cql_intro_c.html">CQL</a>.&nbsp;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        (CQL closely resembles SQL - a rather odd choice, since Cassandra is
+        definitely a nosql database.)</p>
+      <p>At present, DataStax's <a href="http://docs.datastax.com/en/developer/java-driver/3.0/java-driver/whatsNew2.html">Java
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          Driver 3.0 for Apache Cassandra</a> appears to be the most commonly
+        used means for accessing Cassandra from Java.&nbsp; It provides a
+        mechanism for running CQL commands from a Java program (but it does <i>not</i>
+        support the jdbc).&nbsp; There are a few Cassandra jdbc drivers
+        available but it not clear if they are being actively supported or
+        widely used.&nbsp; We'll stick to DataStax's Java Driver.<br>
+      </p>
+      <p>The Java Driver can be downloaded from <a href="http://downloads.datastax.com/java-driver/cassandra-java-driver-3.0.0.tar.gz">http://downloads.datastax.com/java-driver/cassandra-java-driver-3.0.0.tar.gz</a><br>
+      </p>
+      <p>After unpacking, the jar files will be in <tt>cassandra-java-driver-3.0.0</tt>
+        <i>and</i> in <tt>cassandra-java-driver-3.0.0/lib. </tt>You'll need to
+        put <i>all</i> of them in you classpath.<br>
+      </p>
+      <h3>4. <a name="a4"></a>Launching Cassandra (and optionally cqlsh)<br>
+      </h3>
+      <p>In a shell, cd to apache-cassandra-3.5/bin and run</p>
+      <blockquote>
+        <p><tt>./cassandra -f</tt><br>
+        </p>
+      </blockquote>
+      <p>The '-f' keeps the instance of Cassandra in the foreground, so it can
+        be killed off with cntrl-c, which is handy for testing (but of course
+        not the way you'd run a production system).<br>
+      </p>
+      <p>During testing, it may be useful to run&nbsp;<a href="https://docs.datastax.com/en/cql/3.0/cql/cql_reference/cqlsh.html">cqlsh</a>,
+        which is a command line utility for interactively executing cql
+        commands.&nbsp; In particular, cqlsh has a <tt>describe</tt> command
+        that can list keyspaces, tables, table structures, etc.&nbsp; <tt>describe</tt>
+        is not part of cql itself and is not available in the java driver
+        (although the same information can be obtained with <tt>select </tt>commands).<br>
+      </p>
+      <p>cqlsh is included in the Apache tar file and can be found in <tt>a</tt><tt>pache-cassandra-3.5/bin.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          </tt>But note that it is written in python and required python <b>2</b>
+        - it will <i>not </i>work with python 3.&nbsp;&nbsp; You can launch it
+        with<br>
+      </p>
+      <blockquote>
+        <p><tt>./cqlsh</tt><br>
+        </p>
+      </blockquote>
+      <p><i>if </i>you have python 2 as the default python.&nbsp; If not,
+        you'll get a rather obscure error message.&nbsp; The simplest solution
+        is to explicitly execute the python file using the correct version of
+        python.&nbsp; E.g. I have both python 2 and 3 on my system, so I use<br>
+      </p>
+      <blockquote><tt>python2 cqlsh.py</tt><br>
+      </blockquote>
+      <h3>5. <a name="a5"></a>Connecting to Cassandra</h3>
+      <p>Operations are performed on a specific cluster.&nbsp; To connect to a
+        cluster on our local address, we use the static method&nbsp;&nbsp;<tt><a
+            href="http://docs.datastax.com/en/drivers/java/3.0/com/datastax/driver/core/Cluster.Builder.html#build--">Cluster.builder()</a></tt>
+        to get a<tt> </tt><tt><a href="http://docs.datastax.com/en/drivers/java/3.0/com/datastax/driver/core/Cluster.html">Cluster</a></tt>
+        object from a particular IP address.&nbsp; To access a cluster on the
+        local system, we use the standard local address "<tt>127.0.0.1</tt>":<br>
+      </p>
+      <div align="left">
+        <blockquote> <tt>Cluster cluster =
+            Cluster.builder().addContactPoint("127.0.0.1").build();</tt><br>
+        </blockquote>
+      </div>
+      <p>Commands are issued using a <tt><a href="http://docs.datastax.com/en/drivers/java/3.0/com/datastax/driver/core/Session.htm">Session</a></tt><tt>
+        </tt> object that we get from the cluster:</p>
+      <blockquote> <tt>Session session = cluster.connect();<br>
+        </tt></blockquote>
+      <br>
+      To test the connection, let's retrieve a list of all the keyspaces in the
+      cluster.&nbsp; A Cassandra cluster always has some system keyspaces used
+      for management.&nbsp; The system keyspace <tt>system_schema</tt> has a
+      table named <tt>keyspaces</tt> that lists all keyspaces in the
+      cluster.&nbsp; To get a list of keyspaces:<br>
+      <br>
+      <blockquote>
+        <div align="left"><tt>ResultSet r = session.execute("select
+            keyspace_name from system_schema.keyspaces");</tt><br>
+        </div>
+      </blockquote>
+      <div align="left"><br>
+        The DataStax driver uses a <tt>ResultSet</tt> class that is similar to
+        the result set class in the jdbc.&nbsp; To see the results<br>
+        <br>
+        <blockquote> <tt>int i = 0;<br>
+          </tt><tt> </tt><tt> for ( Iterator</tt><tt><row> it = r.iterator();
+              it.hasNext(); ) {
+              <blockquote> Row row = it.next();<br>
+                String s = row.getString("keyspace_name");<br>
+                System.out.println((i++) + " " + s); </blockquote>
+              } <br>
+            </row></tt></blockquote>
+        <br>
+        A new cluster will have five system tables.<br>
+      </div>
+      <blockquote>
+        <div align="left"> </div>
+      </blockquote>
+      <h3>6. <a name="a6"></a>Creating a keyspace</h3>
+      <p>To create a new keyspace <br>
+      </p>
+      <div align="left">
+        <blockquote>
+          <p><tt>String keySpaceName = "a_test_keyspace";</tt><tt><br>
+            </tt><tt>session.execute("CREATE KEYSPACE IF NOT EXISTS " + <br>
+              &nbsp;&nbsp;&nbsp; </tt><tt>keySpaceName + <br>
+              &nbsp;&nbsp;&nbsp; " WITH REPLICATION = { 'class' :
+              'SimpleStrategy', 'replication_factor' : 1 }");</tt><br>
+          </p>
+        </blockquote>
+      </div>
+      <p>Note that we've set the replication factor to unity.<br>
+      </p>
+      <p>To avoid having to use fully qualified table name, we usually specify
+        the keyspace we'll be using.<br>
+      </p>
+      <blockquote>
+        <p><tt>session.execute("USE " + keySpaceName);</tt><br>
+        </p>
+      </blockquote>
+      <h3>7. <a name="a7"></a>Creating a table</h3>
+      <blockquote>
+        <p><tt>String tableName = "table0";</tt><br>
+          <tt>session.execute("CREATE TABLE IF NOT EXISTS " + </tt><br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
+
+
+
+            tableName +&nbsp; " ( " +</tt><br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
+
+
+
+            " s0 text, " +</tt><br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
+
+
+
+            " i0 int, " +</tt><br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
+
+
+
+            " d0 double, " +</tt><br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
+
+
+
+            " b0 boolean, " +</tt><br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
+
+
+
+            " PRIMARY KEY ( s0, i0, d0 ) )"&nbsp;
+            );&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </tt> </p>
+      </blockquote>
+      The first item column in the primary key list (<tt>s0</tt>) is the
+      partition key.&nbsp; There are Cassandra data types for all Java
+      primitives and some other objects including lists.&nbsp; See <a href="https://docs.datastax.com/en/latest-java-driver/java-driver/reference/javaClass2Cql3Datatypes.html">CQL
+
+
+
+
+
+
+        data types to Java types</a> for a full list of the mappings.<br>
+      <br>
+      Note that serialized Java objects can be stored in tables as hex strings.
+      &nbsp; After serializing an object to a <tt>byte[]</tt>, you can use <tt><a
+          href="http://docs.datastax.com/en/drivers/java/3.0/com/datastax/driver/core/utils/Bytes.html#toHexString-byte:A-">Bytes.toHexString</a></tt>
+      to create a string that can be stored in a Cassandra text column.<br>
+      <br>
+      <h3>8. <a name="a8"></a>Adding data</h3>
+      <p>Rows are added to a table using either the <tt>INSERT</tt> or <tt>UPDATE</tt>
+        command.&nbsp; Note that the both will overwrite an existing row if it
+        has the specified primary key.&nbsp; The main difference is that with <tt>UPDATE</tt>
+        you can specify a new column, while with INSERT you are limited to
+        columns that already exist.<br>
+      </p>
+      <p>Like the jdbc, the Cassandra Java Driver supports prepared statements
+        and typed 'set' methods.&nbsp; So while we can add data using <tt>session.execute("....")</tt>,
+        we more often do something like this:<br>
+      </p>
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <tt>PreparedStatement ps =
+          session.prepare(</tt><tt><br>
+        </tt><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          "INSERT INTO " + tableName + </tt><tt><br>
+        </tt><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
+
+
+          "( s0, i0, d0, b0 ) values ( ?, ?, ?, ? ) ");</tt><tt><br>
+        </tt><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </tt><tt><br>
+        </tt><tt>&nbsp;&nbsp; for ( int i = 0; i &lt; 3; i++ ) {</tt><br>
+        <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for ( int j = 0; j &lt; 5; j++
+          ) {</tt><br>
+        <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          BoundStatement bs = ps.bind();</tt><br>
+        <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          bs.setString("s0", "str_" + Integer.toString(i));</tt><br>
+        <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          bs.setInt("i0", j);</tt><br>
+        <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          bs.setDouble("d0", (double) (i+j));</tt><br>
+        <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          bs.setBool("b0", true);</tt><br>
+        <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          session.execute(bs);</tt><br>
+        <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</tt><br>
+        <tt>&nbsp;&nbsp; }</tt><br>
+      </p>
+      <h3>9. <a name="a9"></a>Retrieving data<br>
+      </h3>
+      <p>CQL has a SELECT command that also looks a lot like SQL, although
+        selection criteria are constrained as described above.&nbsp; Rows can be
+        retrieved using <tt>session.execute("SELECT ...")</tt> commands.&nbsp;
+        However, in many situations, it's more convenient to use the <tt><a href="http://docs.datastax.com/en/drivers/java/3.0/com/datastax/driver/core/querybuilder/Select.html">Select</a></tt>
+        and<tt> </tt><tt><a href="http://docs.datastax.com/en/drivers/java/3.0/index.html?com/datastax/driver/core/querybuilder/Select.html">QueryBuilder</a></tt><tt>
+        </tt>classes, e.g.<br>
+      </p>
+      <blockquote>
+        <p><tt>Select s = QueryBuilder.select().all().from(tableName);</tt><tt><br>
+          </tt><tt>s.where(QueryBuilder.eq("s0","str_1"));</tt><tt><br>
+          </tt><tt>s.where(QueryBuilder.eq("i0",0));</tt><tt><br>
+          </tt><tt>s.where(QueryBuilder.lt("d0",4.0));</tt><tt><br>
+          </tt><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </tt><tt><br>
+          </tt><tt>ResultSet rs = session.execute(s);</tt><tt><br>
+          </tt> </p>
+      </blockquote>
+      <tt> </tt>
+      <p>And to see the results<br>
+      </p>
+      <blockquote>
+        <p><tt>int i = 0;</tt><tt><br>
+          </tt><tt>for ( Iterator&lt;Row&gt; it = rs.iterator(); it.hasNext(); )
+            {</tt><tt><br>
+          </tt><tt>&nbsp;&nbsp;&nbsp; Row row = it.next();</tt><tt><br>
+          </tt><tt>&nbsp;&nbsp;&nbsp;&nbsp; System.out.println((i++) + ": s0=" +
+            row.getString("s0") +</tt><tt><br>
+          </tt><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            " i0=" + row.getInt("i0") + " d0=" + row.getDouble("d0") +</tt><tt><br>
+          </tt><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            " b0=" + row.getBool("b0") );</tt><tt><br>
+          </tt><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
+
+
+            </tt><tt><br> </tt><tt>}</tt><br>
+        </p>
+      </blockquote>
+      <h3>10. <a name="a10"></a>Everything else</h3>
+      <p>For the full set of possible operations, see <a href="https://cassandra.apache.org/doc/cql3/CQL.html#dropTableStmt">Cassandra
+
+
+
+
+
+
+          Query Language (CQL) v3.3.1</a> and of course the <a href="http://docs.datastax.com/en/drivers/java/3.0/index.html?com/datastax/driver/core/querybuilder/Select.html">DataStax
+
+
+
+
+
+
+          Java Driver API</a>.<br>
+      </p>
+      <p><br>
+      </p>
+      <br>
+      <hr size="1" color="#9d1d1e"> <span class="left"><small><a href="mailto:bdworg@gmail.com?subject=Comment%20on%20Cassandra%20with%20Java">Comments?</a></small></span>
+      <span class="right"><small>Copyright ©&nbsp;2016 <a href="Barnet_Wagman_resume.html">Barnet
+            Wagman</a></small></span> </div>
+    <br>
+    <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+  (adsbygoogle = window.adsbygoogle || []).push({
+    google_ad_client: "ca-pub-9092576891221162",
+    enable_page_level_ads: true
+  });
+</script>
+  </body>
+</html>

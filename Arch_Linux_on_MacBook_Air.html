@@ -1,0 +1,917 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="bw.css">
+    <title>Installing Arch Linux on a MacBook Air</title>
+  </head>
+  <body style="     margin:30; background-color: white; color: black;" vlink="#FF0000"
+    link="#0000FF" alink="#000088"><span class="left"></span>
+    <div align="right">
+      <div id="content"> <span class="left"><small>2017-02-09</small></span> <span
+          class="right"><small>Copyright ©&nbsp;2017 <a href="Barnet_Wagman_resume.html">Barnet
+              Wagman</a></small></span> <br>
+        <hr size="1" color="#9d1d1e"> <br>
+        <h1 align="center">Installing Arch Linux on a MacBook Air</h1>
+        <h2 style="text-align: center;">Step-By-Step Instructions</h2>
+        <p style="text-align: justify;">Among its other virtues, Arch Linux has
+          particularly good documentation, and that certainly includes the <a href="https://wiki.archlinux.org/index.php/Mac">Mac
+            ArchWiki</a>, which is the best description of installing Linux on a
+          Mac that I've found.</p>
+        <p style="text-align: justify;">Even so, installing Arch Linux on a
+          MacBook takes a bit of work and involves making a number of
+          choices.&nbsp; The first time I did it, I found myself jumping back in
+          forth among various websites to find the information I needed.&nbsp;
+          To ease the pain a bit, I'm posting a step by step description of how
+          I installed Arch Linux on a MacBook Air.&nbsp; This is no substitute
+          for the <a href="https://wiki.archlinux.org/index.php/Mac">Mac
+            ArchWiki</a>, but perhaps seeing a complete example will help.</p>
+        <strong><big><small>Notation:</small></big></strong><big><small> ◉ </small></big>indicates
+        an action <em></em>that is specific to a Mac or MacBook (as opposed to
+        actions required for installing Arch Linux on any hardware).<br>
+        <br>
+        The target system:<br>
+        <br>
+        <blockquote> </blockquote>
+        <blockquote>
+          <table width="100%" cellspacing="0" cellpadding="2" border="0">
+            <tbody>
+              <tr>
+                <td valign="top">Computer</td>
+                <td valign="top">MacBook Air (13-inch, Early 2015)</td>
+              </tr>
+              <tr>
+                <td valign="top">RAM</td>
+                <td valign="top">8 GB</td>
+              </tr>
+              <tr>
+                <td valign="top">Drive</td>
+                <td valign="top">256 GB SDD<br>
+                </td>
+              </tr>
+              <tr>
+                <td valign="top">OS X<br>
+                </td>
+                <td valign="top">El Capitan 10.11.5</td>
+              </tr>
+            </tbody>
+          </table>
+        </blockquote>
+        <div style="margin-left: 40px;"><strong><br>
+          </strong></div>
+        <strong> <br>
+        </strong>
+        <hr size="1" color="#9d1d1e"> <strong></strong>
+        <h2><strong> </strong> Step-By-Step Instructions</h2>
+        <div style="margin-left: 40px;"><a href="#Prequisites"><strong>Prerequisites</strong></a><br>
+          <a href="#Use_OSX_to"><strong>Use OS X to prepare the system for Arch
+              Linux</strong></a><br>
+          <a href="#Install_Arch_base"><strong>Install the Arch base system</strong></a><br>
+          <a href="#Add_a_user"><strong>Add a user and some basic services</strong></a><br>
+          <a href="#Add_Graphics"><strong>Install basic graphics and audio</strong></a><br>
+          <a href="#touchpad_and_keyboard"><strong>Add touchpad and keyboard
+              support</strong></a><br>
+          <a href="#Add_WIFI"><strong>Add WIFI support</strong></a><br>
+          <a href="#power_managment"><strong>Install power management</strong></a><br>
+          <a href="#Openbox"><strong>Install and configure Openbox</strong></a></div>
+        <strong></strong><strong></strong><br>
+        <div style="margin-left: 40px;"> <strong></strong></div>
+        <hr size="1" color="#9d1d1e"><strong></strong>
+        <h2><a name="Prequisites">Prerequisites</a><br>
+        </h2>
+        <blockquote>A blank USB stick, at least 1GB, for the Arch Linux
+          iso.&nbsp; Optionally, a second one to hold a bootable OS X installer.<br>
+          <br>
+          ◉ A connection to the internet via ethernet&nbsp; - not wireless.<br>
+          <br>
+          ◉ A&nbsp; USB to ethernet adaptor - the Arch Linux iso does not have
+          the driver for the macbook's wireless chip. <br>
+        </blockquote>
+        <h2><a name="Use_OSX_to">Use OS X to prepare the system for Arch Linux</a></h2>
+        <blockquote> </blockquote>
+        <h4> ◉&nbsp; (Optional) Create a bootable OS X installer</h4>
+        <blockquote> </blockquote>
+        <blockquote>As a precaution, you may want to have a bootable OS X
+          installer on a USB stick.&nbsp; If the system gets completely screwed
+          up, you'll want to be able to reinstall OS X.&nbsp; This can usually
+          be done using the recovery partition that Apple installs on its
+          systems.&nbsp; However, if this partition gets damaged, you'll need
+          the bootable installer to reinstall OS X.<br>
+          <br>
+          <a href="http://www.macworld.com/article/2981585/operating-systems/how-to-make-a-bootable-os-x-10-11-el-capitan-installer-drive.html">See
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            this page (or others)</a> for instructions on how to put a bootable
+          installer on a USB stick.&nbsp; The USB drive will probably need to be
+          formatted for OS X.&nbsp; To boot off this drive, start the MacBook
+          holding down the alt key.<br>
+        </blockquote>
+        <h4> ◉&nbsp; Update OS X</h4>
+        <h3> </h3>
+        <blockquote>
+          <p>The <a href="https://wiki.archlinux.org/index.php/MacBook#Updating_OS_X">Mac
+              ArchWiki</a> strongly recommends keeping OS X so that you can get
+            firmware updates.&nbsp; Update OS X before proceeding.<br>
+          </p>
+        </blockquote>
+        <h4> ◉ Resize the OS X partition</h4>
+        <h4> </h4>
+        <blockquote>
+          <p>To free up space for the Linux system, use the OS X Disk Utility to
+            shrink the OS X partition.<br>
+          </p>
+        </blockquote>
+        <blockquote>In Disk Utility, select the drive (e.g. "APPLE SDD SM0256G
+          Media") <i>not the </i>partition (e.g. "Machintosh HD") within it.<br>
+          Select "Partition" (one of the commands at the top of the window).<br>
+          <br>
+          Resize the partition.<br>
+          <br>
+          E.g. On my 256 GB ssd,&nbsp; the OS X system was using ~ 36.7
+          GB.&nbsp;&nbsp; OS X itself uses 15-20 GB.&nbsp; I shrunk the
+          partition to 64 GB.&nbsp; After resizing, the disk partitions were<br>
+          <blockquote>Macintosh HD 64.65 GB<br>
+            Untitled 185.64 GB<br>
+          </blockquote>
+        </blockquote>
+        <blockquote> </blockquote>
+        <h4> ◉ Install the rEFInd boot manager</h4>
+        <h4> </h4>
+        <blockquote>
+          <p>This is a 'platform-neutral' boot manager that seems the be the
+            preferred one for Arch Linux on a Mac.&nbsp;&nbsp; As of El Capitan,
+            installation has been complicated by Apple's introduction of System
+            Integrity Protection (SIP).&nbsp; The installation process in the
+            'regular' rEFInd documentation no longer works.&nbsp; Installing on
+            a system with SIP is described in <a href="http://www.rodsbooks.com/refind/sip.html">The
+              rEFInd Boot Manager: rEFInd and System Integrity Protection</a>. <br>
+          </p>
+          <p>There are several ways of circumventing SIP.&nbsp; "Using Recovery
+            Mode" is approach recommended by rEFInd's author.&nbsp; It does not
+            entail disabling SIP.<br>
+          </p>
+        </blockquote>
+        <blockquote>
+          <blockquote>Download and unzip <code>refind-bin-0.10.3.zip</code>.<br>
+            <br>
+            Reboot into Recovery Mode: Command-R at chime.<br>
+            <br>
+            In recovery mode, select Utilities -&gt; Terminal from the <i>top
+              menu bar.<br>
+              <br>
+            </i> Change directory to the unzipped rEFInd dir, i.e. the directory
+            that was created when you unzipped <code>refind-bin-0.10.3.zip<br>
+            </code><br>
+            In this directory, run the script <code>./refind-install</code>.&nbsp;
+            Note that the script will warn you that SIP is enabled.&nbsp;
+            Because we are in recovery mode, it isn't.&nbsp; Answer 'yes' to
+            proceed.</blockquote>
+        </blockquote>
+        <h2><a name="Install_Arch_base">Install Arch base (minimal) system</a></h2>
+        <blockquote> </blockquote>
+        <h4>&nbsp;Create the iso image</h4>
+        <blockquote>
+          <p>Download <tt>archlinux-2016.05.01-dual.iso </tt>from an Arch
+            Linux mirror (e.g. <code>http://mirror.rackspace.com/archlinux/iso/2016.05.01/
+              </code>).<br>
+            <br>
+            Write the iso image to a usb flash drive.&nbsp; <a href="https://wiki.archlinux.org/index.php/USB_flash_installation_media#In_Mac_OS_X">USB
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              Flash Installation Media</a> has instructions for writing this iso
+            image to usb (in Linux, OS x etc.). </p>
+        </blockquote>
+        <h4>◉ Connect one USB port to an internet connection (e.g. router,
+          modem). </h4>
+        <div style="margin-left: 40px;">Note that a wireless connection will not
+          do.&nbsp; Wifi support will be added later - see <a href="Add_WIFI">Add
+            WIFI</a> below.</div>
+        <h4>Boot from the iso image<br>
+        </h4>
+        <blockquote>Reboot the system with the Arch Linux iso image USB
+          inserted.<br>
+          <br>
+          <big><small><small>◉</small> </small></big>The rEFind manager page
+          appears first.&nbsp; It displays available boot options, including OS
+          X and OS X recovery mode. By default rEFInd boots into OS X after a
+          delay.&nbsp; Hit an arrow key to stop the countdown and choose
+          something else.&nbsp; Note that in this screen you <i>must</i> use
+          the arrow keys to navigate.&nbsp; The touchpad will not work.<br>
+          <br>
+          <small>◉ </small>rEFInd will find several things on that drive (in
+          addition to all the OS X stuff on the ssd).&nbsp; Choose "Boot
+          EFI\boot\loader.efi from ARCHISO_EFI". <br>
+          <br>
+          <small>◉ </small>A text Arch Linux menu will appear: choose the first
+          option "Arch Linux archiso x86_64 UEFI CD".&nbsp; The system will boot
+          to Arch Linux on the usb drive.<br>
+        </blockquote>
+        <h4> Set the clock to use ntp</h4>
+        <blockquote><tt>timedatectl set-ntp true</tt><br>
+          <br>
+          To test, type <code>timedatectl status</code>, which will show
+          'Network time on', 'NTP synchronized', among other things.<br>
+        </blockquote>
+        <h4> <big><small>◉&nbsp; </small></big>Setup the Linux partitions: EFI
+          boot and root</h4>
+        <blockquote>Use <tt>fdisk -l </tt>(or another Linux utility) to
+          identify the storage devices on your system. There should be two
+          devices, the ssd drive and the usb drive.&nbsp; The former will have
+          several partitions including "EFI System", "Apple Core Storage",
+          "Apple boot", ...&nbsp; This is the one we will be working on.&nbsp;
+          On my system, it was <code>/dev/sdc</code>.<br>
+          <br>
+          I use the simplest possible partitioning scheme: a boot partition and
+          a root partition.&nbsp; Of course you can use other schemes if you
+          prefer.<br>
+          <br>
+          &nbsp;I used cgdisk to do the partitioning (but there are other
+          equally good disk utilities).&nbsp; To partition with cgdisk:<br>
+          <br>
+        </blockquote>
+        <blockquote>
+          <blockquote>Launch cgdisk with the ssd device (e.g.<code> /dev/sdc</code>)
+            as an argument.&nbsp; cgdisk is an interactive program.&nbsp; It
+            will show the partitions on the drive. <br>
+            <br>
+            Delete the "Untitled: partition.&nbsp; This is the partition created
+            with OS X Disk Utility to hold Arch Linux.<br>
+            <br>
+            Create a new partition, the boot partition.&nbsp; Assign it a name
+            such as 'boot'.<br>
+            <br>
+          </blockquote>
+        </blockquote>
+        <blockquote>
+          <blockquote>
+            <blockquote>For first sector, specify +128M.&nbsp; This leaves space
+              after the OS X partitions; OS X likes that.<br>
+              <br>
+              Boot partition size is 512M, type ef00</blockquote>
+          </blockquote>
+        </blockquote>
+        <blockquote>
+          <blockquote> <br>
+            Create another new partition, the root partition, using the
+            remaining space. Assign it a name such as 'root'.<br>
+          </blockquote>
+        </blockquote>
+        <h4> Format the partitions</h4>
+        <h4> </h4>
+        <blockquote>Use <tt>lsblk </tt>or <tt>fdisk </tt>-l to identify the
+          dev names of the boot partition and root partition.&nbsp; Note that if
+          the system's been rebooted, the letters may have change.&nbsp; E.g. my
+          ssd initially showed up as <code>/dev/sdc,</code> but after rebooting
+          it was <code>/dev/sda</code>. The boot partition was <code>/dev/sda4</code>
+          and the root partition was <tt>/dev/sda5.</tt><br>
+          <br>
+          Format the root partition <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <tt>mkfs.ext4 /dev/sda5</tt><br>
+          <br>
+          <small>◉&nbsp; </small>Format the boot partition<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <tt>mkfs.ext4 /dev/sda4</tt><br>
+        </blockquote>
+        <h4> Mount the root and boot partitions</h4>
+        <h4> </h4>
+        <blockquote>
+          <blockquote> </blockquote>
+          <p><tt>mount /dev/s</tt><tt><i>da5 </i></tt><tt>/mnt</tt><tt><br>
+            </tt><tt> mkdir -p /mnt/boot</tt><tt><br>
+            </tt><tt> mount /dev/sda4 /mnt/boot</tt></p>
+        </blockquote>
+        <div align="left">
+          <h4> Modify the pacman mirrorlist</h4>
+          <h4> </h4>
+          <blockquote>Edit <tt>/etc/pacman.d/mirrorlist </tt>(vi is
+            available): move the server you want to try first to the top. &nbsp;
+            E.g. move the U.S. servers to the top if you are in U.S.&nbsp; Note
+            that while we've just 'edited' the file in ram, it will be copied to
+            our ssd.<br>
+          </blockquote>
+          <h4> Install the base system packages</h4>
+          <h4> </h4>
+          <blockquote>The base system is installed using <tt>pacstrap</tt>
+            During installation of the base system using pacman, there are
+            options <em>re</em> package to be installed.&nbsp; You can select
+            'all' (the default) at each prompt.<br>
+            <br>
+          </blockquote>
+          <blockquote>
+            <blockquote><tt>pacstrap -i /mnt base base-devel<br>
+              </tt> </blockquote>
+          </blockquote>
+          <h4> Create fstab</h4>
+          <h4> </h4>
+          <blockquote><tt>genfstab -U /mnt &gt;&gt; /mnt/etc/fstab<br>
+            </tt></blockquote>
+          <h4> chroot</h4>
+          <h4> </h4>
+          <blockquote><tt>arch-chroot /mnt /bin/bash</tt><br>
+            <tt> </tt><br>
+            <tt> </tt>This will put things in the right places (in<code> /mnt</code>)
+            without adding<code> /mnt</code> to all the paths.&nbsp; The <code>/bin/bash</code>
+            argument gives us bash instead of zsh.<br>
+          </blockquote>
+          <h4> Set the locale</h4>
+          <h4> </h4>
+          <blockquote>Edit <code>/etc/locale.gen </code>uncommenting <code>en_US.UTF-8
+              UTF-8 </code>if you are in the U.S. or the appropriate line if
+            you're not. Then run<br>
+            <code> </code>&nbsp;<br>
+            <div style="margin-left: 40px;"> <tt>locale-gen</tt></div>
+            <tt> </tt><br>
+            <tt> </tt>Create (using vi or some other editor) <code>/etc/locale.conf</code>.&nbsp;
+            For U.S. users, it should contain<br>
+            <br>
+            <div style="margin-left: 40px;"> <tt>LANG=en_US.UTF-8</tt></div>
+            <tt><br>
+            </tt> </blockquote>
+          <h4> Set the timezone and 'time skew'</h4>
+          <p style="margin-left: 40px;">Run</p>
+          <h4> </h4>
+          <blockquote>
+            <div style="margin-left: 40px;"><tt>tzselect</tt></div>
+            <br>
+            To make this permanent for a particular user, add a timezone
+            specification to the user's <code>.profile,<span style="font-family: serif;">
+                for example </span></code><span style="font-family: monospace;"></span><code>TZ='America/Los_Angeles';
+              export TZ</code> for the west coast of the U.S.<br>
+            <br>
+            <tt>ln -s /usr/share/zoneinfo/America/Los_Angeles /etc/localtime</tt><tt><br>
+              hwclock --systohc<code> </code></tt><code>--utc<br>
+            </code> </blockquote>
+          <h4> Install and configure a boot loader (UEFI/GPT)</h4>
+          <h4> </h4>
+          <blockquote> <tt>bootctl install</tt><br>
+            <tt> </tt> <br>
+            <em>Note </em>that the <a href="https://wiki.archlinux.org/index.php/MacBookPro11,x">MacBookPro11,x
+              ArchWiki </a>states that "You may need to install <span class="plainlinks archwiki-template-pkg"><a
+                rel="nofollow" class="external text" href="https://www.archlinux.org/packages/?name=intel-ucode">intel-ucode</a></span>
+            ..." I didn't do this and it doesn't appear to be necessary for my
+            hardware.<br>
+            <br>
+            Modify <tt>/boot/loader/loader.conf</tt>.&nbsp; Based on the <a href="https://wiki.archlinux.org/index.php/Systemd-boot#Configuration">Arch
+
+
+
+
+
+
+
+              Linux systemd-boot wiki</a> (not the sample file), this should
+            contain <br>
+            <blockquote><tt>timeout 4</tt><br>
+              <tt> </tt><tt>default arch</tt><br>
+              <tt> </tt><tt>editor 0<br>
+                <br>
+              </tt></blockquote>
+            Use <tt>ls -l /dev/disk/by-partuuid</tt> to find the partuuids for
+            disk partitions.<br>
+            <br>
+            Use the partuuid for the root (<i>not</i> the boot) partition to
+            create <tt>/boot/loader/entries/arch.conf</tt>.&nbsp; Note that
+            this file was <em><strong>not </strong></em>created
+            automatically.&nbsp; It should contain (at a minimum)<br>
+            <blockquote> <tt>title&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Arch
+                Linux</tt><br>
+              <tt>linux&nbsp;&nbsp;&nbsp; /vmlinuz-linux</tt><br>
+              <tt>initrd&nbsp;&nbsp; /initramfs-linux.img</tt><br>
+              <tt>options root=PARTUUID=</tt>&lt;the partuuid for the <b>root </b>files
+              system partition&gt; <tt>rootfstype=ext4 add_efi_memmap<br>
+              </tt></blockquote>
+          </blockquote>
+          <h4> Set the hostname</h4>
+          <h4> </h4>
+          <blockquote> Put a hostname of your choice in <tt>/etc/hostname<span
+                style="font-family: serif;">,</span></tt><br>
+            Edit <tt>/etc/hosts</tt>. Add your hostname <span style="font-family: monospace;"></span>to
+            the localhost lines.<br>
+            <br>
+          </blockquote>
+          <h4> Set the root password</h4>
+          <blockquote> <tt>passwd<br>
+            </tt></blockquote>
+          <h4> Setup network connection by enabling dhcpd</h4>
+          <h4> </h4>
+          <blockquote>Use <tt>ls /sys/class/net</tt> to determine the ethernet
+            device name.&nbsp; It is enp3s0.
+            <pre>systemctl enable dhcpcd@<i>enp3s0</i>.service</pre>
+            <blockquote> </blockquote>
+          </blockquote>
+          <h4> Shutdown and reboot</h4>
+          <h4> </h4>
+          <blockquote><tt>exit </tt># This gets us out of the chroot
+            environment.</blockquote>
+          <blockquote><tt>umount -R /mnt</tt> </blockquote>
+          <blockquote><tt>reboot<br>
+              <br>
+            </tt> </blockquote>
+          <blockquote>◉ When you reboot, you'll have a choice of<br>
+            <blockquote><tt>Arch Linux</tt><br>
+              <tt>EFI Default Booter</tt><br>
+              <tt>OS X<br>
+                <br>
+              </tt> </blockquote>
+          </blockquote>
+          <blockquote> The "EFI Default Booter" justs gives you a choice of Arch
+            Linux and OS X.<br>
+            <br>
+            Choose "Arch Linux". You'll get a login prompt: use root to login.<br>
+            <br>
+          </blockquote>
+          <blockquote> </blockquote>
+          <hr size="1" color="#9d1d1e">
+          <p><br>
+            We now have a functioning, bootable Arch Linux system with one user
+            (root) and the base and base-devel packages.&nbsp; It has <em>no</em>
+            graphics yet.<br>
+            <br>
+          </p>
+          <hr size="1" color="#9d1d1e"> <br>
+          <h2><a name="Add_a_user">Add a user and some basic services</a></h2>
+          <blockquote> </blockquote>
+          <h4> Add a user with a password</h4>
+          <h4> </h4>
+          <blockquote><tt>useradd -m -G wheel -s /bin/bash someu</tt><tt><br>
+            </tt><tt>passwd someu<br>
+              <br>
+            </tt> </blockquote>
+          <blockquote>Note that we put the user in group <i>wheel</i> to
+            support building AUR packages, among other things.<br>
+          </blockquote>
+          <h4>&nbsp; ssh server</h4>
+          <h4> </h4>
+          <blockquote>
+            <p><tt>pacman -S openssh</tt><br>
+            </p>
+          </blockquote>
+          <blockquote>Edit /<tt>etc/ssh/sshd_config</tt> to allow password
+            login, root login, and limiting login to moi and root.<br>
+            <br>
+            <tt>systemctl enable sshd<br>
+            </tt><tt>systemctl start sshd<br>
+            </tt></blockquote>
+          <h4> ntp</h4>
+          <h4> </h4>
+          <blockquote>
+            <p><tt>pacman -S ntp</tt><br>
+            </p>
+          </blockquote>
+          <h4> Network manager</h4>
+          <blockquote><tt>systemctl enable NetworkManager.service </tt><br>
+          </blockquote>
+          <blockquote> </blockquote>
+          <h2><a name="Add_Graphics">Add Basic graphics and audio</a><br>
+          </h2>
+          <h4> X11 graphics</h4>
+          <h4> </h4>
+          <blockquote>Install the following packages using <tt>pacman -S</tt><br>
+            <blockquote>
+              <p><b> </b>xf86-video-intel<br>
+                xorg-server with defaults choices of libs<br>
+                xorg-server-utils<br>
+                xorg-apps<br>
+              </p>
+            </blockquote>
+          </blockquote>
+          <blockquote> The xorg* packages constitute the basic X11 graphics
+            system.<br>
+          </blockquote>
+          <h4> ◉ Add the Intel video driver</h4>
+          <h4> </h4>
+          <blockquote>
+            <p>Use <tt>lspci</tt> to determine your graphics 'card'.&nbsp; (In
+              my case, it's an Intel Xeon E3-1200 v3/4th Gen Core Processor
+              Integrated Graphics Controller.)</p>
+            <p>For systems with an Intel graphics chip, it is important to add
+              the Intel specific drivers.&nbsp; While graphics will sometimes
+              work without them, some applications (e.g. libreoffice) will crash
+              if they haven't been installed.&nbsp; To determine your graphics
+              chip:<br>
+            </p>
+            <blockquote>
+              <p><tt>lspci | grep VGA</tt><br>
+              </p>
+            </blockquote>
+            which on my MacBook Air yields<br>
+            <br>
+            <blockquote><tt>00:02.0 VGA compatible controller: Intel Corporation
+                Broadwell-U Integrated Graphics (rev 09)<br>
+                <br>
+              </tt></blockquote>
+            Install the Intel driver, which is available in an official Arch
+            Linux package:&nbsp; <tt><b>xf86-video-intel<br>
+              </b></tt></blockquote>
+          <h4> Fonts</h4>
+          <h4> </h4>
+          <blockquote>
+            <p>While the xorg packages provide usable fonts, font appearance was
+              substantially improved by using <a href="https://wiki.archlinux.org/index.php/Infinality">Infinality</a>.
+              I had a little trouble getting the Infinality packages.&nbsp; As
+              of 6/2016, there is an infinality meta-package that works and is
+              available from an unofficial repository.&nbsp; To use it, add the
+              following to <tt>/etc/pacman.conf<br>
+              </tt></p>
+            <blockquote>
+              <p><tt>[infinality-bundle]</tt><tt><br>
+                </tt><tt> Server = http://bohoomil.com/repo/$arch</tt><tt><br>
+                </tt></p>
+            </blockquote>
+            <p>then import and sign the key<br>
+            </p>
+            <blockquote>
+              <pre><code>pacman-key -r 962DDE58
+pacman-key --lsign-key 962DDE58<br></code></pre>
+            </blockquote>
+            <code></code>refresh the package database<br>
+            <blockquote><tt>pacman -Syy<br>
+              </tt></blockquote>
+            and install the meta-package<br>
+            <blockquote><tt>pacman -Ss infinality-bundle<br>
+                <br>
+              </tt></blockquote>
+            Note that pacman will ask which of a set of packages you want
+            installed - install all of them.&nbsp; It will also ask you if you
+            want to replace conflicting packages - answer yes.</blockquote>
+          <h4>Audio</h4>
+          <blockquote><tt>pacman -S alsa-utils<br>
+            </tt></blockquote>
+          <h4>Display Manager</h4>
+          <blockquote>
+            <p>There are <i>many </i>of these.&nbsp; One simple one that works
+              without problems is gdm:</p>
+            <blockquote><tt>pacman -S gdm</tt><br>
+              <tt>systemctl enable gdm.service<br>
+                <br>
+              </tt></blockquote>
+            Remember that <em>once a display manager is enable, the system will
+              boot to it, rather than to a text shell</em>.&nbsp; Of course gdm
+            won't get us anywhere until a window manager like OpenBox or a
+            desktop is installed (<a href="#Openbox">described below</a>).&nbsp;
+            <br>
+            <br>
+            If necessary, virtual terminals are always available.&nbsp; <strong><em>On
+                an Apple keyboard, use fn-cntrl-option-F&lt;3,4,...&gt; to get a
+                virtual terminal.</em></strong></blockquote>
+          <h2><a name="touchpad_and_keyboard">Add touchpad and keyboard support</a></h2>
+          <h4>◉&nbsp; Install xf86-input-synaptics</h4>
+          <blockquote>
+            <p>The official Arch Linux package xf86-input-synaptics gives good
+              functionality.&nbsp; Note that a two fingered vertical move
+              simulates the mouse wheel very nicely.</p>
+          </blockquote>
+          <h4> ◉ Change the keyboard layout</h4>
+          <blockquote>
+            <p>The default US keyboard layout gives '&lt;&gt;' from the '~`'
+              key.&nbsp; To fix it temporarily</p>
+            <blockquote>
+              <pre>echo 0 &gt; /sys/module/hid_apple/parameters/iso_layout</pre>
+            </blockquote>
+          </blockquote>
+          <blockquote>The permanent fix is<br>
+            <br>
+            <blockquote>Edit <tt>/etc/modprobe.d/hid_apple.conf</tt> and add<br>
+              <blockquote>
+                <pre>options hid_apple iso_layout=0
+</pre></blockquote>
+              then run, as root,<br>
+              <blockquote><code>mkinitcpio -p linux<br>
+                  <br>
+                </code></blockquote>
+            </blockquote>
+          </blockquote>
+          <blockquote>See the <a href="https://wiki.archlinux.org/index.php/Apple_Keyboard">Arch
+              Linux Apple Keyboard wiki</a> for this and other keyboard fixes if
+            needed.</blockquote>
+          <h4> ◉ Set keyboard backlight brightness</h4>
+          <blockquote>By default, the keyboard backlight is off.&nbsp; It can be
+            reset (e.g. to 128) by<br>
+            <br>
+            <blockquote><code>echo 128 &gt;
+                /sys/class/leds/smc::kbd_backlight/brightness<br>
+                <br>
+              </code></blockquote>
+            <code></code><code></code>The max brightness is 255.&nbsp; <br>
+            <br>
+            <em><strong>Note</strong></em>: The above command can only be run by
+            the root.&nbsp; For a less crude approach, see the <a href="https://wiki.archlinux.org/index.php/MacBook#Keyboard_Backlight">Keyboard
+              Backlight section of the Arch Linux Macbook wiki</a>.<br>
+            <br>
+            Also note that the directory<tt> /sys/class/leds/smc::kbd_backlight
+            </tt>is a link to <tt>/sys/devices/platform/applesmc.768/leds/smc::kbd_backlight</tt><br>
+            <br>
+            I use a trivial shell script to change the brightness:</blockquote>
+          <div style="margin-left: 80px;"><code># kbb<br>
+              # Set keyboard backlight brightness.<br>
+              # Range is [0,255]<br>
+              <br>
+              echo $1 &gt;&gt;
+              /sys/devices/platform/applesmc.768/leds/smc::kbd_backlight/brightness<br>
+              <br>
+              echo "Set keyboard brightness to " $1<br>
+            </code></div>
+          <h2><a name="Add_WIFI">Add WIFI support</a></h2>
+          <blockquote>◉ Adding WIFI support is not inherently MacBook specific.
+            But many systems, WIFI hardware will be detected at boot time and
+            the correct driver will be automatically loaded.&nbsp; This is not
+            case for a MacBook; the following procedure is needed.<br>
+            <p>Identify the wifi chip using</p>
+            <blockquote>
+              <pre>lspci -vnn -d 14e4:</pre>
+            </blockquote>
+            I have a <b>Broadcom BCM4360 14e4:43a0</b><br>
+            <br>
+            The <a href="https://wiki.archlinux.org/index.php/MacBook#Wi-Fi">Wi-Fi
+              section</a> of the MacBook ArchWiki has information about finding
+            the correct driver for various chips.&nbsp;&nbsp; Note that there is
+            a separate <a href="https://wiki.archlinux.org/index.php/Broadcom_wireless">ArchWiki
+              BroadCom wireless</a> page.<br>
+            <br>
+            I used the broadcom-wl-dkms AUR package.&nbsp; Note that the first
+            time I installed it, I ran into dependency problems.&nbsp; After a
+            few misadventures, the follow sequence got it installed and working
+            properly:<br>
+            <br>
+            <blockquote><tt>pacman -Syu</tt> # i.e. update everything<br>
+              <br>
+              Install two official packages:<br>
+              <blockquote>linux-headers<br>
+                dkms</blockquote>
+              Install the AUR package broadcom-wl-dkms<br>
+              <br>
+              Restart the NetworkManager service: <br>
+              <blockquote><tt>systemctl restart NetworkManager</tt><tt><br>
+                  <br>
+                </tt></blockquote>
+            </blockquote>
+            To easily manage wifi connections, I use the nm-applet.&nbsp;&nbsp;
+            It's best to add this after graphics is installed:&nbsp; see&nbsp; <a
+              href="#monitor_power">nm-applet (below).</a> <br>
+            <br>
+            <b>Note/Warning:</b> After an update of the system (<tt>pacman -Syu</tt>),
+            the wifi connection no longer worked.&nbsp; It was necessary to
+            update the broadcom driver (as described above) and to restart the
+            NetworkManager.&nbsp;&nbsp; This may be because broadcom-wl-dkms
+            depends on two official packages, which may have been updated.&nbsp;
+            fter the broadcom driver was broken, the internet was still
+            accessible using a hardwired network connection (via one of the usb
+            ports).</blockquote>
+          <code></code>
+          <h2> <a name="power_managment">Add Power Management</a></h2>
+          <blockquote> ◉ Install the official Arch Linux package: <tt>tlp</tt>
+            and enable and disable relevant services:</blockquote>
+          <blockquote>
+            <blockquote><tt><br>
+                systemctl disable systemd-rfkill.service</tt></blockquote>
+          </blockquote>
+          <blockquote>
+            <blockquote> <tt>systemctl enable tlp.service</tt><tt><br>
+              </tt><tt>systemctl enable tlp-sleep.service</tt><tt><br>
+                <br>
+              </tt></blockquote>
+            <div style="margin-left: 40px;"> I use cbatticon to monitor
+              power.&nbsp; That gets installed after the window manager (<a href="#monitor_power">see
+                below</a>)</div>
+            <h4>◉ Disable systemd suspend when lid is closed</h4>
+            <blockquote>By default, systemd handles some acpi events, including
+              the lid closing event.&nbsp; When the lid is closed, the screen is
+              dimmed and system is suspended correctly.&nbsp; When the lid is
+              re-opened, the system is awoken successfully, but the screen stays
+              dark. &nbsp; I haven't figured out how to fix this, but we can
+              disable the suspend altogether. &nbsp; To do so, edit <br>
+              <br>
+              <blockquote><code>/etc/systemd/logind.conf</code><br>
+                <code></code></blockquote>
+              <code><br>
+              </code><code></code>and set <br>
+              <br>
+              <blockquote><code>HandleLidSwitch=ignore</code></blockquote>
+            </blockquote>
+          </blockquote>
+          <h2><a name="Openbox">Install and Configure OpenBox</a></h2>
+          <h3>Installation</h3>
+          <p>This section describes installing OpenBox and some supporting
+            packages from a text shell.&nbsp; After OpenBox is up and running,
+            we'll do a little configuration and add more packages.</p>
+          <p>FYI there's nothing special about OpenBox re a MacBook.&nbsp; Other
+            window managers or desktops would probably work just as well.</p>
+          <h4>Install OpenBox and related packages.&nbsp; </h4>
+          <div style="margin-left: 40px;">These are official packages that can
+            be installed with <tt>pacman -S<br>
+              <br>
+            </tt></div>
+          <blockquote>openbox<br>
+            openbox-themes<br>
+            compton</blockquote>
+          <blockquote>compton is a compositor.&nbsp; Without it, most apps
+            (including firefox) have extremely delayed typing echo.</blockquote>
+          <h4>Copy default config files to the non-root user's .config directory</h4>
+          <blockquote>
+            <pre>cp -R /etc/xdg/openbox ~&lt;user name&gt;/.config/</pre>
+          </blockquote>
+          <h4>Add packages for configuring OpenBox</h4>
+          <blockquote>
+            <p>The following (official) packages are useful for configuring
+              OpenBox.&nbsp; Add them now (with pacman), so that they'll
+              be&nbsp; available the first time you run OpenBox:</p>
+            obmenu<br>
+            menumaker<br>
+            obconf</blockquote>
+          <h4>Enable compton</h4>
+          <blockquote>
+            <p>When OpenBox launches, it runs the commands in <tt>~&lt;username&gt;/.config/openbox/autostart<br>
+              </tt>The compton compositor need to be explicitly run, so create a
+              minimal autostart file now, containing the line</p>
+            <tt>compton -b &amp;<br>
+            </tt></blockquote>
+          <h4>Add some applications need for working in OpenBox</h4>
+          <blockquote>
+            <p>OpenBox is a display manager, not a desktop, so it provides no
+              applications.&nbsp; To avoid some inconvience, install a few basic
+              applications now. The following are all available as official
+              packages and can be installed with pacman:</p>
+            lxterminal (or some other terminal emulator)<br>
+            thunar (or some other filemanager)<br>
+            firefox (do <i>not</i> choose the 10-bit option)<br>
+            gedit (or some other editor)</blockquote>
+          <h4>Create the OpenBox menu</h4>
+          <blockquote>The default OpenBox menu doesn't have much, and won't
+            include lxterminal.&nbsp; Use mmaker to create menu.xml.&nbsp; mmake
+            scans for executables and seems to find nearly everything.&nbsp;
+            Note that it overwrites the menu file&nbsp; <tt>~&lt;user
+              name&gt;/.config/openbox/menu.xml</tt>.<br>
+            <br>
+            We use mmaker just to build the initial menu file. Later we'll edit
+            this file by hand.&nbsp; To build a menu.xml<br>
+            <br>
+            <blockquote><tt>mmaker -vf OpenBox3<br>
+                <br>
+              </tt></blockquote>
+          </blockquote>
+          <h4> ◉ Setup power monitoring</h4>
+          <div style="margin-left: 40px;">To <a id="monitor_power">monitor
+              power</a>, install the official package: cbatticon and put</div>
+          <blockquote style="margin-left: 80px;"><code>cbatticon &amp;</code></blockquote>
+          <div style="margin-left: 80px;">in <code>~&lt;username&gt;/.config/openbox/autostart</code></div>
+          <blockquote>&lt;hr size="1" color="#9d1d1e"&gt; &lt;br&gt;</blockquote>
+          <br>
+          <hr style="color: #9d1d1e;">
+          <blockquote><br>
+          </blockquote>
+          The next time the system is booted, the display manager gdm will get
+          launched and OpenBox will be one of the options.&nbsp; It should
+          really be the only one, but because of the way window managers and
+          desktops are detected, other options may be in the list.<br>
+          <br>
+          <hr style="color: #9d1d1e;">
+          <h3>Configuration and supporting packages</h3>
+          <h4>Reboot</h4>
+          <blockquote>◉ You'll have three choices:<br>
+            <blockquote>Arch Linux<br>
+              EFI Default Loader<br>
+              OS X</blockquote>
+          </blockquote>
+          <br>
+          <blockquote>Choosing 'Arch Linux' will boot to the display manager
+            (GDM);</blockquote>
+          <blockquote>Choose OpenBox from the display manager and login as a
+            (non-root) user.&nbsp; Right-clicking opens the OpenBox menu which
+            will contain lxterminal (somewhere).&nbsp; Launch lxterminal</blockquote>
+          <br>
+          <h4>Add packages that support OpenBox</h4>
+          <blockquote>These can be added with pacman, except as noted.<br>
+            <br>
+            <div style="margin-left: 40px;">tint2 # taskbar<br>
+              hsetroot # AUR package. Sets the desktop color<br>
+              volumeicon<br>
+              libnotify # Supports messages from some services<br>
+              network-manager-applet<br>
+              xfce4-notifyd&nbsp; # Needed by network-manager-applet<br>
+              gnome-icon-theme # Needed by network-manager-applet</div>
+          </blockquote>
+          <blockquote><br>
+          </blockquote>
+          FYI OpenBox's configuration files are in
+          ~&lt;username&gt;/.config/openbox.<br>
+          <br>
+          Changes to OpenBox configuration are not automatically applied. In
+          most cases <tt>openbox --reconfigure </tt>(which is in the OpenBox
+          menu) will do it, but for some things restarting OpenBox is necessary.<br>
+          <h4>Edit autostart.xml, the file OpenBox runs when it starts</h4>
+          <blockquote>Edit ~&lt;user
+            name&gt;/.config/openbox/autostart.xml.&nbsp; This file contains
+            commands that get executed when OpenBox starts.&nbsp; The file
+            contains<br>
+            <blockquote>
+              <p><tt>compton -b &amp;</tt><tt><br>
+                </tt><tt>hsetroot -solid '#F0F0F0' &amp;</tt><tt>&nbsp; </tt><tt><br>
+                </tt><tt>volumeicon &amp;<br>
+                </tt></p>
+            </blockquote>
+            #F0F0F0 is a very light gray.</blockquote>
+          <h4>Edit ~&lt;user name&gt;/.config/openbox/rc.xml to changes some key
+            bindings</h4>
+          <blockquote>To get the volume keys working add the following at the
+            end of the keyboard section, as a &lt;keybind&gt; item:<br>
+            <blockquote>&lt;keybind key="XF86AudioRaiseVolume"&gt;<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;action name="Execute"&gt; <br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;command&gt;amixer
+              set Master 10%+&lt;/command&gt;<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/action&gt;<br>
+              &nbsp;&lt;/keybind&gt;<br>
+              &nbsp;&lt;keybind key="XF86AudioLowerVolume"&gt;<br>
+              &nbsp;&nbsp;&nbsp;&nbsp; &lt;action name="Execute"&gt;<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;command&gt;amixer
+              set Master 10%-&lt;/command&gt;<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/action&gt;<br>
+              &nbsp; &lt;/keybind&gt;<br>
+              &nbsp; &lt;keybind key="XF86AudioMute"&gt;<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;action name="Execute"&gt; <br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;command&gt;amixer
+              set Master toggle&lt;/command&gt;<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/action&gt;<br>
+              &nbsp; &lt;/keybind&gt;</blockquote>
+          </blockquote>
+          <blockquote>To use cntrl-arrow keys to change desktops, add the
+            following to the &lt;keyboard&gt; section):</blockquote>
+          <blockquote>
+            <blockquote>&lt;keybind key="C-Right"&gt;&nbsp;&nbsp; &lt;action
+name="DesktopRight"&gt;&lt;wrap&gt;yes&lt;/wrap&gt;&lt;/action&gt;&lt;/keybind&gt;<br>
+              &lt;keybind key="C-Left"&gt;&nbsp;&nbsp;&nbsp; &lt;action
+name="DesktopLeft"&gt;&lt;wrap&gt;yes&lt;/wrap&gt;&lt;/action&gt;&lt;/keybind&gt;</blockquote>
+            ◉ On the MacBook, I did not disable changing workspaces with the
+            'mousewheel', which in the touchpad is two fingers moved
+            vertically.&nbsp; This works very nicely.</blockquote>
+          <h4><a id="nm-applet">nm-applet</a> </h4>
+          <div style="margin-left: 40px;">To manage wifi connections, I use the
+            nm-applet.&nbsp;&nbsp;&nbsp; Install the following official packages</div>
+          <blockquote style="margin-left: 80px;"><br>
+            network-manager-applet<br>
+            xfce4-notifyd&nbsp; # Needed by network-manager-applet<br>
+            gnome-icon-theme # Needed by network-manager-applet</blockquote>
+          <div style="margin-left: 40px;">nm-applet needs to be launched
+            explicitly.&nbsp; Put</div>
+          <blockquote style="margin-left: 80px;"><tt>nm-applet &amp;</tt><tt><br>
+              <br>
+            </tt></blockquote>
+          <div style="margin-left: 40px;">in <code>~&lt;username&gt;/.config/openbox/autostart<br>
+              <br>
+              <br>
+            </code></div>
+        </div>
+        <hr size="1" color="#9d1d1e"><small><span class="left"><a href="mailto:bdworg@gmail.com?subject=Comment%20on%20Arch%20Linux%20MacBookAir%20Installation">Comments?
+              </a></span> <span style="float:right">
+            Copyright ©&nbsp;2017 <a href="Barnet_Wagman_resume.html">Barnet
+              Wagman</a>
+          </span></small>
+      </div>
+    </div>
+    <br>
+    <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+  (adsbygoogle = window.adsbygoogle || []).push({
+    google_ad_client: "ca-pub-9092576891221162",
+    enable_page_level_ads: true
+  });
+</script>
+  </body>
+</html>
